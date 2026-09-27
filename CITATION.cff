@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use anchor in your research, please cite it using this metadata."
+title: "anchor: endpoint-anchored dead-reckoned trajectory reconstruction and behaviour inference for elasmobranch biologger data"
+abstract: >-
+  anchor reconstructs fine-scale animal trajectories from archival
+  accelerometer/IMU tags via a constrained sequential Monte Carlo particle
+  filter (tide, bathymetry, wind-leeway and Verified-Position constraints with
+  FFBS smoothing), classifies behaviour from kinematics (HMM and supervised,
+  with subject-level cross-validation), and turns the K joint trajectory samples
+  into uncertainty-propagated utilization distributions and energy seascapes.
+type: software
+authors:
+  - family-names: Sambold
+    given-names: Daniel
+    email: dsambold@csumb.edu
+    affiliation: "California State University, Monterey Bay"
+    orcid: "https://orcid.org/0009-0003-7810-650X"
+  - family-names: Moran
+    given-names: Dylan
+  - family-names: Jorgensen
+    given-names: Salvador
+license: MIT
+version: 0.1.0
+date-released: "2026-08-01"
+keywords:
+  - biologging
+  - accelerometer
+  - dead-reckoning
+  - trajectory reconstruction
+  - movement ecology
+  - elasmobranch
+  - particle filter
+repository-code: "https://github.com/dbold23/anchor-track"

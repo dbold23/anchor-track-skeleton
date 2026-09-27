@@ -1,0 +1,118 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anchor-track"
+version = "0.1.0"
+description = "Endpoint-anchored dead-reckoned trajectory reconstruction + behavior inference for elasmobranch biologger data"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    {name = "Daniel Sambold", email = "dsambold@csumb.edu"},
+    {name = "Dylan Moran"},
+]
+license = {text = "MIT"}
+keywords = [
+    "biologging", "accelerometer", "dead-reckoning", "trajectory",
+    "movement-ecology", "elasmobranch", "shark", "particle-filter",
+    "behavior-classification", "telemetry",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "pyarrow",
+    "scikit-learn",
+    "hmmlearn",
+    "pyyaml",
+    "pydantic>=2",
+    "matplotlib",
+    "typer",
+]
+
+[project.urls]
+Repository = "https://github.com/dbold23/anchor-track"
+Documentation = "https://github.com/dbold23/anchor-track/tree/main/docs"
+Issues = "https://github.com/dbold23/anchor-track/issues"
+
+[project.optional-dependencies]
+# openpyxl is pandas' .xlsx engine: scripts/reconcile_windows.py and
+# scripts/inventory_field_metadata.py read the field metadata workbooks
+# through it, and their tests write one. Nothing in anchor/ imports it.
+dev = ["pytest", "pytest-cov", "ruff", "openpyxl"]
+trajectory = ["pyproj", "rasterio", "shapely", "geopandas", "folium"]
+# Standard-format export: CF-1.8 NetCDF4. GeoJSON/Movebank work with the core +
+# trajectory deps; this extra adds full NetCDF4 (else export falls back to
+# NetCDF3 via scipy).
+io = ["netCDF4"]
+# Deep-learning behaviour classifier (DeepConvLSTM + self-attention). Imported
+# lazily; the rest of anchor never depends on torch.
+deep = ["torch>=2.0"]
+# Validation framework: pose detection (DLC/SLEAP), drone metadata, auto-clipping.
+# ffmpeg must be on PATH for auto_clip (brew install ffmpeg / apt install ffmpeg).
+validation = [
+    "h5py",                  # SLEAP analysis HDF5 loader
+    "deeplabcut",            # pose inference; imported lazily
+    "opencv-python",         # video frame I/O
+    "ffmpeg-python",         # programmatic ffmpeg
+    "exifread",              # EXIF/SRT-adjacent metadata for drone footage
+]
+
+[project.scripts]
+anchor = "anchor.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["anchor*"]
+
+[tool.setuptools.package-data]
+"anchor.dashboard" = ["static/*.html", "static/*.js", "static/*.css", "static/*.svg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "sim"]
+# --cov is deliberately NOT in addopts: local runs stay fast. CI measures
+# coverage explicitly (see .github/workflows/ci.yml + scripts/check_coverage.py).
+addopts = "-ra -q --strict-markers"
+xfail_strict = true
+markers = [
+    "slow: test takes more than a few seconds; deselect with -m 'not slow'",
+    "needs_data: requires the gitignored data/ drive (raw/interim/external inputs)",
+    "network: performs live network I/O (NOAA/OSM/NHD fetches)",
+]
+# Warnings are errors so anchor's own code cannot emit one unnoticed. Every
+# entry below is a warning raised by a third-party dependency, not by anchor.
+filterwarnings = [
+    "error",
+    # sklearn precision/recall on a label set wider than y_true; the test
+    # (tests/behavior/test_metrics.py) asserts exactly that behaviour.
+    "ignore:y_pred contains classes not in y_true:UserWarning",
+    # Compiled-extension ABI chatter from a wheel built against an older numpy
+    # C header (surfaces via netCDF4/rasterio import).
+    "ignore:numpy.ndarray size changed:RuntimeWarning",
+    # hmmlearn assigns to ndarray.shape (hmmlearn/utils.py:_log_normalize).
+    "ignore:Setting the shape on a NumPy array has been deprecated:DeprecationWarning",
+    # affine/rasterio still use `*` for matrix multiplication in
+    # rasterio.transform.from_origin.
+    "ignore:Use `@` matmul instead of :PendingDeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Pyflakes (F) + the pycodestyle subsets the codebase already satisfies, plus
+# whitespace (W). Import-sorting (I) is intentionally omitted to avoid a
+# repo-wide reordering churn.
+select = ["E4", "E7", "E9", "F", "W"]
