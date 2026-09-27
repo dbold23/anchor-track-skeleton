@@ -17,6 +17,16 @@ release and recovery. By Daniel Sambold and Dylan Moran.
 > below are enough to rebuild the method. MIT licensed, like the full code; if it helps
 > your work, please cite it (`CITATION.cff`).
 
+## Collaborate
+
+I am looking for collaborators. What needs work:
+
+- **Ground truth.** Paired tag deployments and drone overflights to score reconstructed tracks against known positions.
+- **Speed calibration.** The tail-beat to speed constant (K) per species needs more video with synced accelerometry.
+- **Other species and sites** with archival accelerometer tags and known release and recovery points.
+
+Interested? [Open an issue](https://github.com/dbold23/anchor-track-skeleton/issues/new) or message me on [LinkedIn](https://www.linkedin.com/in/daniel-sambold-620b37221).
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/anchor-track-dark.png">
   <img src="docs/anchor-track.png" width="100%" alt="Synthetic leopard shark track with credible bands">
